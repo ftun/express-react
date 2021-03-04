@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const serverIO = require('./sockets/index').server;
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -35,6 +36,8 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-app.listen(port, () => {
+// Spinning the http server and the websocket server.
+const server = serverIO(app);
+server.listen(port, () => {
   console.log(`Env: ${process.env.NODE_ENV} App listening at http://localhost:${port}`)
-})
+});

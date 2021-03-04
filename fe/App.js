@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Index = () => {
-    return <div>WELCOME TO REACT APP!</div>;
+    return <h1>WELCOME TO REACT APP!</h1>;
 };
 
 export default Index;
