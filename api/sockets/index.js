@@ -16,6 +16,7 @@ let editorContent = null;
 // User activity history.
 let userActivity = [];
 
+const MSN = [];
 
 
 const sendMessage = (json) => {
@@ -48,21 +49,30 @@ exports.server = app => {
         console.log('connected socket client: ' + userID + ' in ' + Object.getOwnPropertyNames(CLIENTS));
 
         connection.on('message', message => {
-            console.log('message cliente', message);
             if (message.type === 'utf8') {
-                const dataFromClient = JSON.parse(message.utf8Data);
-                const json = { type: 'OK' };
-                if (dataFromClient.type === typesDef.USER_EVENT) {
-                    USERS[userID] = dataFromClient;
-                    userActivity.push(`${dataFromClient.username} joined to edit the document`);
-                    json.data = { USERS, userActivity };
-                } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-                    editorContent = dataFromClient.content;
-                    json.data = { editorContent, userActivity };
-                }
-
-                sendMessage(JSON.stringify(json));
+                console.log('Received Message: ' + message.utf8Data);
+                connection.sendUTF(message.utf8Data);
             }
+            else if (message.type === 'binary') {
+                console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+                connection.sendBytes(message.binaryData);
+            }
+            // console.log('message cliente', message);
+            // if (message.type === 'utf8') {
+            //     // console.log(message, 'IF', JSON.parse(message.utf8Data));
+            //     const dataFromClient = JSON.parse(message.utf8Data);
+            //     const json = { type: 'OK' };
+            //     if (dataFromClient.type === typesDef.USER_EVENT) {
+            //         USERS[userID] = dataFromClient;
+            //         userActivity.push(`${dataFromClient.username} joined to edit the document`);
+            //         json.data = { USERS, userActivity };
+            //     } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
+            //         editorContent = dataFromClient.content;
+            //         json.data = { editorContent, userActivity };
+            //     }
+            //     console.log(json);
+            //     // sendMessage(JSON.stringify(json));
+            // }
         });
 
         // user disconnected
