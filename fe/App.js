@@ -1,7 +1,10 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 
 const Index = () => {
-    return <h1>WELCOME TO REACT APP!</h1>;
+    return <Link to="/client" variant="contained" color="primary">
+    Link
+  </Link>;
 };
 
 export default Index;

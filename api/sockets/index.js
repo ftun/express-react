@@ -45,10 +45,10 @@ exports.server = app => {
 
         const connection = request.accept(null, request.origin);
         CLIENTS[userID] = connection;
-        console.log('connected: ' + userID + ' in ' + Object.getOwnPropertyNames(CLIENTS));
+        console.log('connected socket client: ' + userID + ' in ' + Object.getOwnPropertyNames(CLIENTS));
 
         connection.on('message', message => {
-            console.log('message', message);
+            console.log('message cliente', message);
             /*if (message.type === 'utf8') {
                 const dataFromClient = JSON.parse(message.utf8Data);
                 const json = { type: 'OK' };
