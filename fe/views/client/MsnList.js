@@ -23,8 +23,8 @@ const AlignItemsList = props => {
   const classes = useStyles();
 
   return <List className={classes.root}>
-            {props.data.msn.map(msn => {
-                return <React.Fragment>
+            {props.data.map((msn, idx) => {
+                return <React.Fragment key={idx}>
                     <ListItem alignItems="flex-start">
                         <ListItemAvatar>
                             <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
@@ -39,7 +39,7 @@ const AlignItemsList = props => {
                                         className={classes.inline}
                                         color="textPrimary"
                                 >
-                                Ali Connors
+                                ->
                             </Typography>
                             {msn}
                             </React.Fragment>

@@ -49,7 +49,7 @@ exports.server = app => {
 
         connection.on('message', message => {
             console.log('message cliente', message);
-            /*if (message.type === 'utf8') {
+            if (message.type === 'utf8') {
                 const dataFromClient = JSON.parse(message.utf8Data);
                 const json = { type: 'OK' };
                 if (dataFromClient.type === typesDef.USER_EVENT) {
@@ -62,7 +62,7 @@ exports.server = app => {
                 }
 
                 sendMessage(JSON.stringify(json));
-            } */
+            }
         });
 
         // user disconnected

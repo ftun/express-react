@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 	},
   }));
 
-  
+
 const client = new W3CWebSocket('ws://localhost:9000');
 const contentDefaultMessage = "Start writing your document here";
 
@@ -27,35 +27,35 @@ const Index = () => {
 
     // De forma similar a componentDidMount y componentDidUpdate
     useEffect(() => {
-        client.onopen = () => {
-			setConnect('OnLine');
-          };
-          client.onmessage = (message) => {
-            const dataFromServer = JSON.parse(message.data);
-            const stateToChange = {};
-            if (dataFromServer.type === "userevent") {
-              stateToChange.currentUsers = Object.values(dataFromServer.data.users);
-            } else if (dataFromServer.type === "contentchange") {
-              stateToChange.text = dataFromServer.data.editorContent || contentDefaultMessage;
-            }
-            stateToChange.userActivity = dataFromServer.data.userActivity;
-          };
-        
+        client.onopen = () => setConnect('OnLine');
+        client.onmessage = message => {
+			const dataFromServer = JSON.parse(message.data);
+			const stateToChange = {};
+			if (dataFromServer.type === "userevent") {
+			stateToChange.currentUsers = Object.values(dataFromServer.data.users);
+			} else if (dataFromServer.type === "contentchange") {
+			stateToChange.text = dataFromServer.data.editorContent || contentDefaultMessage;
+			}
+			stateToChange.userActivity = dataFromServer.data.userActivity;
+			console.log(stateToChange);
+		};
+
     });
 
-	const handleChange = (e) => {
-		setValue(e.target.value);
-		if(e.type === "keydown") {
-            if(e.keyCode !== 13) return;
-            e.preventDefault();
-        }
-
-		setMsn([...e.target.value]);
-		console.log('Enter');
+	const handleOnKeyDown = (e) => {
+		if (e.key === 'Enter' && value.trim() !== '') {
+			e.preventDefault();
+			setMsn([...msn, e.target.value]);
+			setValue('');
+			client.send(JSON.stringify({
+	          ...msn,
+	          type: "userevent"
+	        }));
+		}
 	};
 
 	const classes = useStyles();
-    return <form className={classes.root} fullWidth noValidate autoComplete="off">
+    return <form className={classes.root} noValidate autoComplete="off">
 		<div>{connect}</div>
 		<div>
 			<InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
@@ -66,7 +66,8 @@ const Index = () => {
 				rowsMax={4}
 				rows={4}
 				value={value}
-				onKeyDown={handleChange}
+          		onChange={e => setValue(e.target.value)}
+				onKeyDown={handleOnKeyDown}
 				variant="outlined"
 			/>
 		</div>
