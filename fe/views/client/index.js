@@ -1,104 +1,116 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import MsnList from './MsnList';
-
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import InputLabel from '@material-ui/core/InputLabel';
-import Button from '@material-ui/core/Button';
-import { Grid } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-	  '& .MuiTextField-root': {
-		margin: theme.spacing(1),
-		// width: '25ch',
-	  },
+		display: 'flex',
+		flexWrap: 'wrap',
 	},
-  }));
-
+	textField: {
+		marginLeft: theme.spacing(1),
+		marginRight: theme.spacing(1),
+		width: '25ch',
+	},
+}));
 
 const client = new W3CWebSocket('ws://localhost:9000');
-const contentDefaultMessage = "Start writing your document here";
 
 const Index = () => {
+	const [username, setUsername] = useState('');
 	const [connect, setConnect] = React.useState('offline');
-	const [user, setUser] = React.useState('');
-	const [value, setValue] = React.useState('');
-	const [msn, setMsn] = React.useState([]);
+	const [body, setBody] = React.useState('');
+	const [data, setData] = React.useState([]);
 
-    // De forma similar a componentDidMount y componentDidUpdate
-    useEffect(() => {
-		client.onerror = function() {
-			setConnect('Connection Error');
-		};
-
-        client.onopen = () => {
-			setConnect('OnLine');
-			// function sendNumber() {
-		    //     if (client.readyState === client.OPEN) {
-		    //         var number = Math.round(Math.random() * 0xFFFFFF);
-		    //         client.send(number.toString());
-		    //         setTimeout(sendNumber, 1000);
-		    //     }
-		    // }
-		    // sendNumber();
-		}
-
-		client.onclose = function() {
-		    console.log('echo-protocol Client Closed');
-		};
-
-		client.onmessage = function(e) {
+	useEffect(() => {
+		client.onerror = () => setConnect('Connection Error');
+		client.onopen = () => setConnect('OnLine');
+		client.onclose = () => console.log('echo-protocol Client Closed');
+		client.onmessage = e => {
 		    if (typeof e.data === 'string') {
-		        console.log("Received: '" + e.data + "'");
+				let msnS = JSON.parse(e.data);
+				setData([...data, msnS]);
 		    }
 		};
+	});
 
-    });
-
-	const handleOnKeyDown = (e) => {
-		if (e.key === 'Enter' && value.trim() !== '') {
-			e.preventDefault();
-			setMsn([...msn, e.target.value]);
-			setValue('');
-			client.send(JSON.stringify({
-	           msn : e.target.value,
-	          type: "userevent"
-	        }));
+	/**
+	* Se obtiene un usuarios para la sesion del socket
+	* @param object DOM
+	* @return mixed
+	*/
+	const handleGetUserName = e => {
+		if (e.type === 'keydown') {
+			if (e.key === 'Enter' && e.target.value.trim() !== '') {
+				e.preventDefault();
+				setUsername(e.target.value);
+				client.send(JSON.stringify({
+					username : e.target.value,
+				  	body : '',
+				  	type: "JOIN"
+				}));
+			}
 		}
 	};
 
-	const getSession = () => {
-		return <form className={classes.root} noValidate autoComplete="off">
-					<div>
-						<TextField required id="standard-required" label="Required" defaultValue="" />
-							<Button variant="contained" color="primary">
-					        	Ok!
-					      	</Button>
-					</div>
-    			</form>
+	/**
+	* Funcion para el envio de mensajes
+	* @param object DOM
+	* @return mixed
+	*/
+	const handleSendMessage = e => {
+		if (e.key === 'Enter' && body.trim() !== '') {
+			e.preventDefault();
+			setBody('');
+			client.send(JSON.stringify({
+				username : username,
+			  	body : e.target.value,
+			  	type: "MSN"
+			}));
+		}
 	};
 
 	const classes = useStyles();
-	// if (user == '') return getSession();
-    return <form className={classes.root} noValidate autoComplete="off">
-		<div>{connect}</div>
-		<div>
-			<InputLabel htmlFor="outlined-adornment-amount">Messages</InputLabel>
-			<TextField
-				id="outlined-multiline-flexible"
-				label="Multiline"
-				multiline
-				rows={4}
-				value={value}
-          		onChange={e => setValue(e.target.value)}
-				onKeyDown={handleOnKeyDown}
-				variant="outlined"
-			/>
-		</div>
-		<MsnList data={msn}/>
-	</form>;
+  	return <Fragment>
+	 	<div className={classes.root}>
+			<div>{connect}</div>
+			<div>
+				<TextField
+					disabled={username !== ''}
+					id="outlined-margin-dense"
+	            	label="Username"
+	            	defaultValue=''
+	            	className={classes.textField}
+	            	helperText="Some important text"
+	            	margin="dense"
+	            	variant="outlined"
+					onKeyDown={handleGetUserName}
+					onChange={handleGetUserName}
+	          	/>
+	        	<TextField
+					disabled={username === ''}
+					id="outlined-full-width"
+					label="Label"
+					style={{ margin: 8 }}
+					placeholder="Placeholder"
+					helperText="Full width!"
+					fullWidth
+					margin="normal"
+					InputLabelProps={{
+						shrink: true,
+					}}
+					value={body}
+					variant="outlined"
+					onChange={e => setBody(e.target.value)}
+					onKeyDown={handleSendMessage}
+	        	/>
+	      	</div>
+	    </div>
+		<MsnList data={data}/>
+	</Fragment>
+	;
 };
 
 export default Index;

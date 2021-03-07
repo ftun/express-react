@@ -49,41 +49,31 @@ exports.server = app => {
         console.log('connected socket client: ' + userID + ' in ' + Object.getOwnPropertyNames(CLIENTS));
 
         connection.on('message', message => {
+            console.log('message', message);
             if (message.type === 'utf8') {
-                console.log('Received Message: ' + message.utf8Data);
-                connection.sendUTF(message.utf8Data);
+                const json = JSON.parse(message.utf8Data);
+                json.id = userID;
+                if (json.type === 'JOIN') {
+                    USERS[userID] = { username : json.username };
+                    json.body = 'joined!';
+                    sendMessage(JSON.stringify(json));
+                } else if (json.type === 'MSN') {
+                    sendMessage(JSON.stringify(json));
+                }
             }
-            else if (message.type === 'binary') {
-                console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-                connection.sendBytes(message.binaryData);
-            }
-            // console.log('message cliente', message);
-            // if (message.type === 'utf8') {
-            //     // console.log(message, 'IF', JSON.parse(message.utf8Data));
-            //     const dataFromClient = JSON.parse(message.utf8Data);
-            //     const json = { type: 'OK' };
-            //     if (dataFromClient.type === typesDef.USER_EVENT) {
-            //         USERS[userID] = dataFromClient;
-            //         userActivity.push(`${dataFromClient.username} joined to edit the document`);
-            //         json.data = { USERS, userActivity };
-            //     } else if (dataFromClient.type === typesDef.CONTENT_CHANGE) {
-            //         editorContent = dataFromClient.content;
-            //         json.data = { editorContent, userActivity };
-            //     }
-            //     console.log(json);
-            //     // sendMessage(JSON.stringify(json));
+            // else if (message.type === 'binary') {
+            //     console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
+            //     connection.sendBytes(message.binaryData);
             // }
         });
 
         // user disconnected
         connection.on('close', connection => {
             console.log((new Date()) + " Peer " + userID + " disconnected.");
-            //const json = { type: typesDef.USER_EVENT };
-            //userActivity.push(`${USERS[userID].username} left the document`);
-            //json.data = { USERS, userActivity };
+            const json = { type: 'EXIT', username : USERS[userID].username, body : 'Exited' };
             delete CLIENTS[userID];
             delete USERS[userID];
-            //sendMessage(JSON.stringify(json));
+            sendMessage(JSON.stringify(json));
         });
     });
 

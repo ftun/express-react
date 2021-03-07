@@ -9,14 +9,14 @@ import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    maxWidth: '36ch',
-    backgroundColor: theme.palette.background.paper,
-  },
-  inline: {
-    display: 'inline',
-  },
+    root: {
+        width: '100%',
+        maxWidth: '36ch',
+        backgroundColor: theme.palette.background.paper,
+    },
+    inline: {
+        display: 'inline',
+    },
 }));
 
 const AlignItemsList = props => {
@@ -27,10 +27,10 @@ const AlignItemsList = props => {
                 return <React.Fragment key={idx}>
                     <ListItem alignItems="flex-start">
                         <ListItemAvatar>
-                            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                            <Avatar>{msn.username.charAt(0).toUpperCase()}</Avatar>
                         </ListItemAvatar>
                         <ListItemText
-                            primary="Brunch this weekend?"
+                            primary="-----"
                             secondary={
                                 <React.Fragment>
                                     <Typography
@@ -39,9 +39,9 @@ const AlignItemsList = props => {
                                         className={classes.inline}
                                         color="textPrimary"
                                 >
-                                ->
+                                {msn.username}
                             </Typography>
-                            {msn}
+                            {' - ' + msn.body}
                             </React.Fragment>
                         }/>
                     </ListItem>
