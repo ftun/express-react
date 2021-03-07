@@ -38,12 +38,10 @@ exports.server = app => {
         httpServer: server
     });
 
-
     wsServer.on('request', request => {
         var userID = getUniqueID();
         console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
         // You can rewrite this part of the code to accept only the requests from allowed origin
-
         const connection = request.accept(null, request.origin);
         CLIENTS[userID] = connection;
         console.log('connected socket client: ' + userID + ' in ' + Object.getOwnPropertyNames(CLIENTS));
