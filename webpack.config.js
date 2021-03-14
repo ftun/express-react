@@ -37,7 +37,7 @@ module.exports = {
             'process.env.PORT' : JSON.stringify(process.env.PORT),
         }),
         new HtmlWebPackPlugin({
-            template: "./public/index.html", 
+            template: "./public/index.html",
             filename: "./index.html",
             inject: 'body'
         }),
@@ -51,6 +51,19 @@ module.exports = {
                 use: {
                     loader: "babel-loader"
                 }
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: 'style-loader',
+                        options: {
+                            //se asigno esa opcion para que los estilos aparezcan en solo tag de style.
+                            injectType: 'singletonStyleTag',
+                        }
+                    },
+                    "css-loader"
+                ]
             }
         ]
     } /*,

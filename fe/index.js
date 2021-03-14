@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import './bulma.css';
 import Routers from './Routes';
 import Layout from './Layout';
 

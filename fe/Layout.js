@@ -1,60 +1,56 @@
-import React from 'react';
-import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
-import CameraIcon from '@material-ui/icons/PhotoCamera';
-import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Grid from '@material-ui/core/Grid';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
-
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import React, { Fragment } from 'react';
 
 const Layout = props => {
-    return <React.Fragment>
-                <CssBaseline />
-                <AppBar position="relative">
-                <Toolbar>
-                    <CameraIcon />
-                    <Typography variant="h6" color="inherit" noWrap>
-                        Reacts Express
-                    </Typography>
-                </Toolbar>
-                </AppBar>
-                <main>
-                    <Container maxWidth="md">
-                        {props.children}
-                    </Container>
-                </main>
-                <footer>
-                    <Typography variant="h6" align="center" gutterBottom>
-                        Footer
-                    </Typography>
-                    <Typography variant="subtitle1" align="center" color="textSecondary" component="p">
-                        Something here to give the footer a purpose!
-                    </Typography>
-                    <Copyright />
-                </footer>
-            </React.Fragment>
-    ;
-
+    return <Fragment>
+            <nav className="navbar" role="navigation" aria-label="main navigation">
+                <div className="navbar-brand">
+                    {
+                        // <a className="navbar-item" href="/">
+                        //     <img src="https://bulma.io/images/bulma-logo.png" width="112" height="28" />
+                        // </a>
+                    }
+                    <a role="button" className="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                <div id="navbarBasicExample" className="navbar-menu">
+                    <div className="navbar-start">
+                        <a className="navbar-item">Home</a>
+                        <a className="navbar-item">Documentation</a>
+                        <div className="navbar-item has-dropdown is-hoverable">
+                            <a className="navbar-link">More</a>
+                            <div className="navbar-dropdown">
+                                <a className="navbar-item">About</a>
+                                <a className="navbar-item">Jobs</a>
+                                <a className="navbar-item">Contact</a>
+                                <hr className="navbar-divider" />
+                                <a className="navbar-item">Report an issue</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="navbar-end">
+                        <div className="navbar-item">
+                            <div className="buttons">
+                                <a className="button is-primary"><strong>Sign up</strong></a>
+                                <a className="button is-light">Log in</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <main>
+                <section className="section">
+                    <div className="container">{props.children}</div>
+                </section>
+            </main>
+            <footer className="footer">
+                <div className="content has-text-centered">
+                    <p><strong>Example</strong></p>
+                </div>
+            </footer>
+        </Fragment>;
 };
 
 export default Layout;
