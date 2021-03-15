@@ -26,8 +26,8 @@ module.exports = {
                   '^/api' : ''
                 }
             }
-        },
-        hot: true
+        }
+        // hot: true
     },
     plugins: [
         // new webpack.optimize.OccurrenceOrderPlugin(),

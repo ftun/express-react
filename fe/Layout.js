@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
+import { BrowserRouter as Router, Link } from "react-router-dom";
 
 const Layout = props => {
-    return <Fragment>
+    return <Router>
             <nav className="navbar" role="navigation" aria-label="main navigation">
                 <div className="navbar-brand">
                     {
@@ -17,7 +18,7 @@ const Layout = props => {
                 </div>
                 <div id="navbarBasicExample" className="navbar-menu">
                     <div className="navbar-start">
-                        <a className="navbar-item">Home</a>
+                        <Link to="/" className="navbar-item">Home</Link>
                         <a className="navbar-item">Documentation</a>
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">More</a>
@@ -33,8 +34,8 @@ const Layout = props => {
                     <div className="navbar-end">
                         <div className="navbar-item">
                             <div className="buttons">
-                                <a className="button is-primary"><strong>Sign up</strong></a>
-                                <a className="button is-light">Log in</a>
+                                <Link to="/signIn" className="button is-primary">Sign up</Link>
+                                <Link to="/logIn" className="button is-light">Log in</Link>
                             </div>
                         </div>
                     </div>
@@ -50,7 +51,7 @@ const Layout = props => {
                     <p><strong>Example</strong></p>
                 </div>
             </footer>
-        </Fragment>;
+        </Router>;
 };
 
 export default Layout;

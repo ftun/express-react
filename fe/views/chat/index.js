@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import Messages from './Messages';
 
 import { w3cwebsocket as W3CWebSocket } from "websocket";
+// import Axios from '../../../helpers/axios';
 
 const client = new W3CWebSocket('ws://localhost:9000');
 
@@ -12,6 +13,9 @@ const Index = props => {
     const [data, setData] = React.useState([]);
 
 	useEffect(() => {
+
+        // const res = Axios({ url : '/api' });
+        // console.log(res);
 		client.onerror = () => setConnect('Connection Error');
 		client.onopen = () => {
             // setConnect('OnLine')
