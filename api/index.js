@@ -1,13 +1,10 @@
 require('./config/config');
 
 const express = require('express');
-const session = require('express-session');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-// const MongoStore = require('connect-mongo')(session);
-// var MongoDBStore = require('connect-mongodb-session')(session);
-// const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const path = require('path');
 const bodyParser = require('body-parser');
 
@@ -17,8 +14,7 @@ const app = express();
 const port = process.env.PORT;
 const sendFile = path.join(__dirname, '../dist/index.html');
 
-
-mongoose.connect(process.env.URLDB,{useNewUrlParser:true});
+mongoose.connect(process.env.URLDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const conn = mongoose.connection;
 conn.on('connected',() => {
     console.log('MongoDB connected')
@@ -27,47 +23,24 @@ conn.on('error', err => {
     if (err) console.log('Store::Error => ', error);
 });
 
-
-// const conn = require('./conecction');
-//
-// const store = new MongoDBStore({
-//     uri: process.env.URLDB,
-//     // collection: 'test',
-//     connectionOptions: {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true,
-//         serverSelectionTimeoutMS: 10000
-//     }
-// }, error => {
-//     if (error) throw error;
-//     console.log("Base de datos online");
-// });
-//
-// // Catch errors
-// store.on('error', error => {
-//     console.log('Store::Error => ', error);
-// });
-
 app.use(require('express-session')({
     secret: process.env.SESSION_SECRET,
-    // cookie: {
-    //     maxAge: 1000 * 60 * 60 * 24 * 1 // 1 day
-    // },
-    // store: store,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 1, // 1 day
+        secure: false
+    },
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: process.env.URLDB })
 }));
 
-app.use((req, res, next) => {
-    if (req.session) return next();
-
-    var err = new Error('You must be logged in to view this page.');
-    err.status = 401;
-    return next(err);
-});
+// app.use((req, res, next) => {
+//     req.session.cookie.existSession = req.session.user !== undefined;
+//     return next();
+// });
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 

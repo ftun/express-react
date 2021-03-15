@@ -5,40 +5,50 @@ const Usuario = require('./../models/Usuario');
 const app = express();
 
 app.get('/', (req, res) => {
-    res.json(req.session);
+    console.info( req.session);
+
+    res.json({ msn : 'Hola'});
+});
+
+app.get('/isAuthenticated', (req, res) => {
+    let session = req.session;
+    if (!session.user) return res.status(403).json({ ok: false });
+
+    return Usuario.findOne({ user: session.user.user }, (erro, usuarioDB) => {
+        if (erro) return res.status(500).json({ ok: false });
+        if (!usuarioDB) return res.status(403).json({ ok: false });
+        return res.json({ ok: true });
+    });
 });
 
 app.post('/SignIn', (req, res) => {
     let body = req.body;
-
     let { user, email, password } = body;
     let usuario = new Usuario({
-      user,
-      email,
-      password: bcrypt.hashSync(password, 10),
+        user,
+        email,
+        password: bcrypt.hashSync(password, 10),
     });
 
     usuario.save((err, usuarioDB) => {
-        console.log(err, 'err ', usuarioDB);
-      if (err) {
-          return res.status(400).json({
-              ok: false,
-              err,
-          });
-      }
+        if (err) {
+            return res.status(400).json({
+                ok: false,
+                err,
+            });
+        }
 
-      res.json({
-          ok: true,
-          usuario: usuarioDB
-      });
-
+        res.json({
+            ok: true,
+            usuario: usuarioDB
+        });
     });
 });
 
 
 app.post('/logIn', (req, res) => {
     let body = req.body;
-    Usuario.findOne({ user: body.user }, (erro, usuarioDB)=>{
+    Usuario.findOne({ user: body.user }, (erro, usuarioDB) => {
         if (erro) {
             return res.status(500).json({
                 ok: false,
@@ -74,6 +84,10 @@ app.post('/logIn', (req, res) => {
         })
 
         req.session.user = usuarioDB;
+        req.session.save(err => {
+            if (err) console.error(err);
+            console.info('session.save');
+        });
         res.json({
             ok: true,
             usuario: usuarioDB,
@@ -85,7 +99,10 @@ app.post('/logIn', (req, res) => {
 
 // Logout endpoint
 app.get('/logOut', function (req, res) {
-    req.session.destroy();
+    req.session.destroy(err => {
+        if (err) console.error(err);
+        console.info('session.destroy');
+    });
     res.json({
         ok: true,
     });

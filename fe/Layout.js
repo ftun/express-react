@@ -1,22 +1,22 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { BrowserRouter as Router, Link } from "react-router-dom";
+import Cookies from 'js-cookie';
 import Axios from '../helpers/axios';
 
 const Layout = props => {
-    const [existSession, setExistSession] = useState(true);
+    const [existSession, setExistSession] = useState(false);
 
-    // useEffect(() => {
-    //     const getInit = async () => {
-    //         const res = await Axios({ url : '/api' });
-    //         let exist = res.user ? true : false;
-    //         console.log(exist, res.user);
-    //         setExistSession(exist);
-    //     }
-	//     getInit();
-	// });
+    useEffect(() => {
+        const getInit = async () => {
+            const res = await Axios({ url : '/api/isAuthenticated' });
+            if (!res.error && res.data.ok) setExistSession(true);
+        }
+	    getInit();
+	});
 
     const getLogOut = e => {
         const res = Axios({ url : '/api/logOut' });
+        // window.location = '/';
         // setExistSession(false);
     };
 
@@ -52,16 +52,13 @@ const Layout = props => {
                     <div className="navbar-end">
                         <div className="navbar-item">
                             <div className="buttons">
-                                <Link to="/signIn" className="button is-primary">Sign up</Link>
-                                <a className="button is-danger" onClick={getLogOut}>Logout</a>
-                                <Link to="/logIn" className="button is-light">Log in</Link>
                                 {
-                                     //!existSession && <Link to="/signIn" className="button is-primary">Sign up</Link>
+                                     !existSession && <Link to="/signIn" className="button is-primary">Sign up</Link>
                                 }
                                 {
-                                    // existSession ?
-                                    // <a className="button is-danger" onClick={getLogOut}>Logout</a> :
-                                    // <Link to="/logIn" className="button is-light">Log in</Link>
+                                    existSession ?
+                                    <a className="button is-danger" onClick={getLogOut}>Logout</a> :
+                                    <Link to="/logIn" className="button is-light">Log in</Link>
                                 }
                             </div>
                         </div>
@@ -75,7 +72,7 @@ const Layout = props => {
             </main>
             <footer className="footer">
                 <div className="content has-text-centered">
-                    <p><strong>Example</strong></p>
+                    <p><strong>Example</strong><b>OK{existSession}</b></p>
                 </div>
             </footer>
         </Router>;
