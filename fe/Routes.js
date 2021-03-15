@@ -9,7 +9,7 @@ const SignUp = lazy(() => import ( './views/SignUp'));
 const LogIn = lazy(() => import ( './views/LogIn'));
 
 const Routers = () => {
-    return <Suspense fallback={<progress class="progress is-small is-primary" max="100">15%</progress>}>
+    return <Suspense fallback={<progress className="progress is-small is-primary" max="100">15%</progress>}>
         <Switch>
             <Route exact path='/' component={Chat} />
             <Route exact path='/signIn' component={SignUp} />

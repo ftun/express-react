@@ -13,7 +13,7 @@ const app = express();
 
 const store = new MongoDBStore({
     uri: process.env.URLDB,
-    collection: 'mySessions',
+    collection: 'test',
     connectionOptions: {
         useNewUrlParser: true,
         useUnifiedTopology: true,

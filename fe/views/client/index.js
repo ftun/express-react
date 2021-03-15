@@ -79,19 +79,19 @@ const Index = () => {
 	}
 
 	return <form onSubmit={handelOnSubmit}>
-		<div class="field">
-  			<label class="label">Message</label>
-  			<div class="control">
-    			<textarea class="textarea" name="body" placeholder="Textarea" onChange={e => setBody(e.target.value)}
+		<div className="field">
+  			<label className="label">Message</label>
+  			<div className="control">
+    			<textarea className="textarea" name="body" placeholder="Textarea" onChange={e => setBody(e.target.value)}
 			onKeyDown={handleSendMessage}></textarea>
   			</div>
 		</div>
-		<div class="field is-grouped">
-			<div class="control">
-		    	<button class="button is-link" type="submit">Submit</button>
+		<div className="field is-grouped">
+			<div className="control">
+		    	<button className="button is-link" type="submit">Submit</button>
 		  	</div>
-		  	<div class="control">
-		    	<button class="button is-link is-light">Cancel</button>
+		  	<div className="control">
+		    	<button className="button is-link is-light">Cancel</button>
 		  	</div>
 		</div>
 	</form>
