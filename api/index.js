@@ -1,72 +1,81 @@
 require('./config/config');
 
-var express = require('express');
-var session = require('express-session');
-var MongoDBStore = require('connect-mongodb-session')(session);
+const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
+// const MongoStore = require('connect-mongo')(session);
+// var MongoDBStore = require('connect-mongodb-session')(session);
 // const mongoose = require('mongoose');
 const path = require('path');
 const bodyParser = require('body-parser');
+
 const serverIO = require('./sockets/index').server;
 const app = express();
 
+const port = process.env.PORT;
+const sendFile = path.join(__dirname, '../dist/index.html');
+
+
+mongoose.connect(process.env.URLDB,{useNewUrlParser:true});
+const conn = mongoose.connection;
+conn.on('connected',() => {
+    console.log('MongoDB connected')
+});
+conn.on('error', err => {
+    if (err) console.log('Store::Error => ', error);
+});
+
+
 // const conn = require('./conecction');
-
-const store = new MongoDBStore({
-    uri: process.env.URLDB,
-    collection: 'test',
-    connectionOptions: {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 10000
-    }
-}, error => {
-    if (error) throw error;
-    console.log("Base de datos online");
-});
-
-// Catch errors
-store.on('error', error => {
-    console.log('Store::Error => ', error);
-});
+//
+// const store = new MongoDBStore({
+//     uri: process.env.URLDB,
+//     // collection: 'test',
+//     connectionOptions: {
+//         useNewUrlParser: true,
+//         useUnifiedTopology: true,
+//         serverSelectionTimeoutMS: 10000
+//     }
+// }, error => {
+//     if (error) throw error;
+//     console.log("Base de datos online");
+// });
+//
+// // Catch errors
+// store.on('error', error => {
+//     console.log('Store::Error => ', error);
+// });
 
 app.use(require('express-session')({
     secret: process.env.SESSION_SECRET,
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 1 // 1 day
-    },
-    store: store,
-    // Boilerplate options, see:
-    // * https://www.npmjs.com/package/express-session#resave
-    // * https://www.npmjs.com/package/express-session#saveuninitialized
+    // cookie: {
+    //     maxAge: 1000 * 60 * 60 * 24 * 1 // 1 day
+    // },
+    // store: store,
     resave: true,
     saveUninitialized: true
 }));
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
+    if (req.session) return next();
 
-    // console.log('Time:', Date.now());
-    next();
+    var err = new Error('You must be logged in to view this page.');
+    err.status = 401;
+    return next(err);
 });
 
-// parse application/x-www-form-urlencoded
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
-// parse application/json
-app.use(bodyParser.json())
-
-const port = process.env.PORT;
-const sendFile = path.join(__dirname, '../dist/index.html')
+app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use('/public', express.static('../public'));
 app.set('port', port);
-
-// console.log(process.env.NODE_ENV)
-
 app.use('/api', require('./routes/index'));
 
 if (process.env.NODE_ENV === 'production') {
-    // app.set('trust proxy', 1) // trust first proxy
-    // sess.cookie.secure = true // serve secure cookies
-
     app.use(express.static(path.join(__dirname, '../dist')));
     app.get('*', (req, res) => {
         res.sendFile(sendFile);

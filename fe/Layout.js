@@ -1,7 +1,25 @@
-import React, { Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { BrowserRouter as Router, Link } from "react-router-dom";
+import Axios from '../helpers/axios';
 
 const Layout = props => {
+    const [existSession, setExistSession] = useState(true);
+
+    // useEffect(() => {
+    //     const getInit = async () => {
+    //         const res = await Axios({ url : '/api' });
+    //         let exist = res.user ? true : false;
+    //         console.log(exist, res.user);
+    //         setExistSession(exist);
+    //     }
+	//     getInit();
+	// });
+
+    const getLogOut = e => {
+        const res = Axios({ url : '/api/logOut' });
+        // setExistSession(false);
+    };
+
     return <Router>
             <nav className="navbar" role="navigation" aria-label="main navigation">
                 <div className="navbar-brand">
@@ -19,7 +37,7 @@ const Layout = props => {
                 <div id="navbarBasicExample" className="navbar-menu">
                     <div className="navbar-start">
                         <Link to="/" className="navbar-item">Home</Link>
-                        <a className="navbar-item">Documentation</a>
+                        {existSession && <a className="navbar-item">Documentation</a>}
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">More</a>
                             <div className="navbar-dropdown">
@@ -35,7 +53,16 @@ const Layout = props => {
                         <div className="navbar-item">
                             <div className="buttons">
                                 <Link to="/signIn" className="button is-primary">Sign up</Link>
+                                <a className="button is-danger" onClick={getLogOut}>Logout</a>
                                 <Link to="/logIn" className="button is-light">Log in</Link>
+                                {
+                                     //!existSession && <Link to="/signIn" className="button is-primary">Sign up</Link>
+                                }
+                                {
+                                    // existSession ?
+                                    // <a className="button is-danger" onClick={getLogOut}>Logout</a> :
+                                    // <Link to="/logIn" className="button is-light">Log in</Link>
+                                }
                             </div>
                         </div>
                     </div>

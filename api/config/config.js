@@ -5,7 +5,7 @@ process.env.PORT = process.env.PORT || 9000;
 process.env.NODE_ENV = process.env.NODE_ENV || 'dev';
 
 // BDS
-const urlDB = "mongodb://127.0.0.1:27017/test";
+const urlDB = "mongodb://127.0.0.1:27017/test2021";
 
 // if (process.env.NODE_ENV === 'dev') {
 //     urlDB = "mongodb://localhost:27017/mediumNodeLogin";

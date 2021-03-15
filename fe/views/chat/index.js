@@ -13,9 +13,6 @@ const Index = props => {
     const [data, setData] = React.useState([]);
 
 	useEffect(() => {
-
-        // const res = Axios({ url : '/api' });
-        // console.log(res);
 		client.onerror = () => setConnect('Connection Error');
 		client.onopen = () => {
             // setConnect('OnLine')
