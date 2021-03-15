@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { BrowserRouter as Router, Link } from "react-router-dom";
-import Cookies from 'js-cookie';
+import { AuthProvider } from './components/AuthContext';
+// import Cookies from 'js-cookie';
 import Axios from '../helpers/axios';
 
 const Layout = props => {
@@ -9,18 +10,22 @@ const Layout = props => {
     useEffect(() => {
         const getInit = async () => {
             const res = await Axios({ url : '/api/isAuthenticated' });
-            if (!res.error && res.data.ok) setExistSession(true);
+            if (!res.error && res.data.ok) return setExistSession(true);
+            setExistSession(false);
         }
 	    getInit();
 	});
 
     const getLogOut = e => {
         const res = Axios({ url : '/api/logOut' });
-        // window.location = '/';
-        // setExistSession(false);
+        return setExistSession(false);
     };
 
     return <Router>
+            <AuthProvider value={{
+                existSession : existSession,
+                setExistSession : setExistSession
+            }}>
             <nav className="navbar" role="navigation" aria-label="main navigation">
                 <div className="navbar-brand">
                     {
@@ -37,7 +42,7 @@ const Layout = props => {
                 <div id="navbarBasicExample" className="navbar-menu">
                     <div className="navbar-start">
                         <Link to="/" className="navbar-item">Home</Link>
-                        {existSession && <a className="navbar-item">Documentation</a>}
+                        {existSession && <Link to="/chat" className="navbar-item">Chat</Link>}
                         <div className="navbar-item has-dropdown is-hoverable">
                             <a className="navbar-link">More</a>
                             <div className="navbar-dropdown">
@@ -75,7 +80,8 @@ const Layout = props => {
                     <p><strong>Example</strong><b>OK{existSession}</b></p>
                 </div>
             </footer>
-        </Router>;
+        </AuthProvider>
+    </Router>;
 };
 
 export default Layout;

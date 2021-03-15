@@ -1,9 +1,13 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useContext } from 'react';
+import { Redirect } from "react-router-dom";
+import { AuthContext } from '../components/AuthContext';
 import Axios from '../../helpers/axios';
 
 const LogIn = props => {
     /* States */
     const [values, setValues] = useState({});
+    /* Context de la session */
+    const AuthConsumer = useContext(AuthContext);
 
     /**
     * Obtienen los valores del formulario y los almacena en el states
@@ -31,8 +35,11 @@ const LogIn = props => {
             method : 'POST',
             data : values,
         });
+
+        if (!res.error && res.data.ok) return AuthConsumer.setExistSession(true);
     };
 
+    if (AuthConsumer.existSession) return <Redirect to="/" />;
     return <div className="container">
             <div className="notification">
                 <div className="columns is-mobile">

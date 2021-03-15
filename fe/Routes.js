@@ -11,7 +11,8 @@ const LogIn = lazy(() => import ( './views/LogIn'));
 const Routers = () => {
     return <Suspense fallback={<progress className="progress is-small is-primary" max="100">15%</progress>}>
         <Switch>
-            <Route exact path='/' component={Chat} />
+            <Route exact path='/' component={App} />
+            <Route exact path='/chat' component={Chat} />
             <Route exact path='/signIn' component={SignUp} />
             <Route exact path='/logIn' component={LogIn} />
             <Route component={NotFound} />

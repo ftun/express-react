@@ -1,10 +1,9 @@
 import React from 'react';
-import { Link } from "react-router-dom";
-
 const Index = () => {
-    return <Link to="/client" variant="contained" color="primary">
-    Link
-  </Link>;
+    return <div className="notification is-link is-light">
+        <button className="delete"></button>
+        Hello!
+    </div>;
 };
 
 export default Index;

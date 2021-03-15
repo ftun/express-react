@@ -15,7 +15,7 @@ const Request = async (request, extraHeaders={}) => {
         if (request.maxContentLength) config.maxContentLength = request.maxContentLength;
         if (request.maxBodyLength) config.maxBodyLength = request.maxBodyLength;
         let response = await axios(config);
-        console.log('response => ', response.data);
+        // console.log('response => ', response.data);
         return {
                 error: false,
                 code: response.status,

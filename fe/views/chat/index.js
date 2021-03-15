@@ -1,41 +1,53 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useRef, useContext } from 'react';
+import { AuthContext } from '../../components/AuthContext';
 import Messages from './Messages';
-
 import { w3cwebsocket as W3CWebSocket } from "websocket";
-// import Axios from '../../../helpers/axios';
-
-const client = new W3CWebSocket('ws://localhost:9000');
 
 const Index = props => {
     const [username, setUsername] = useState(new Date());
-    const [connect, setConnect] = React.useState('offline');
+    const [connect, setConnect] = React.useState(false);
     const [body, setBody] = React.useState('');
     const [data, setData] = React.useState([]);
+    const ws = useRef(null);
+
+    /* Context de la session */
+    const AuthConsumer = useContext(AuthContext);
 
 	useEffect(() => {
-		client.onerror = () => setConnect('Connection Error');
-		client.onopen = () => {
-            // setConnect('OnLine')
-            let date = new Date();
-            client.send(JSON.stringify({
-            	username : username,
-              	body : '',
-              	type: "JOIN"
+        ws.current = new W3CWebSocket('ws://localhost:9000');
+		ws.current.onerror = () => console.error('Connection Error');
+		// ws.current.onerror = () => setConnect('Connection Error');
+		ws.current.onopen = () => {
+            ws.current.send(JSON.stringify({
+                username : username,
+                body : '',
+                type: "JOIN"
             }));
         };
-		client.onclose = () => console.log('echo-protocol Client Closed');
-		client.onmessage = e => {
+
+        return () => {
+            ws.current.onclose = () => console.log('echo-protocol Client Closed');
+       };
+
+   }, []);
+
+    useEffect(() => {
+        let isMounted = true;
+        if (!ws.current) return;
+        ws.current.onmessage = e => {
 		    if (typeof e.data === 'string') {
 				let msnS = JSON.parse(e.data);
-				setData([...data, msnS]);
+				if (isMounted) setData([...data, msnS]);
 		    }
 		};
-	});
+
+        return () => isMounted = false;
+    });
 
     const handelOnSubmit = e => {
         e.preventDefault();
         if (body.trim() !== '') {
-            client.send(JSON.stringify({
+            ws.current.send(JSON.stringify({
             	username : username,
               	body : body,
               	type: "MSN"
@@ -67,7 +79,7 @@ const Index = props => {
                     </div>
                     <div className="field">
                         <p className="control">
-                            <button className="button is-primary is-light" type="submit">Post message</button>
+                            <button className="button is-primary is-light" type="submit" disabled={!AuthConsumer.existSession}>Post message</button>
                         </p>
                     </div>
                 </form>
