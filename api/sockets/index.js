@@ -1,4 +1,5 @@
-const webSocketServer = require('websocket').server;
+// const webSocketServer = require('websocket').server;
+const socketIO = require('socket.io');
 const http = require('http');
 
 // Generates unique ID for every new connection
@@ -55,49 +56,28 @@ const typesDef = {
   CONTENT_CHANGE: "contentchange"
 }
 
+// este array va a ser nuestra base de datos
+// no es una base de datos de verdad, pero para el ejemplo nos sirve
+const messages = []
+
 exports.server = app => {
     // Spinning the http server and the websocket server.
     const server = http.createServer(app);
-    const wsServer = new webSocketServer({
-        httpServer: server
-    });
+    const io = socketIO(server);
+    io.on('connection', socket => {
+        console.log('User connected');
+        socket.on('chat', data => {
+            console.log('data => ', typeof data, data);
+            // guardamos el mensaje en nuestra "DB"
+            messages.push(data);
+            // enviamos el mensaje a todos los usuarios menos a quién los envió
+            socket.broadcast.emit('message', data);
+        })
 
-    wsServer.on('request', request => {
-        var userID = getUniqueID();
-        console.log((new Date()) + ' Recieved a new connection from origin ' + request.origin + '.');
-        // You can rewrite this part of the code to accept only the requests from allowed origin
-        const connection = request.accept(null, request.origin);
-        CLIENTS[userID] = connection;
-        console.log('connected socket client: ' + userID + ' in ' + Object.getOwnPropertyNames(CLIENTS));
-
-        connection.on('message', message => {
-            console.log('message', message);
-            if (message.type === 'utf8') {
-                const json = JSON.parse(message.utf8Data);
-                json.id = userID;
-                json.date = getCurrentDate();
-                if (json.type === 'JOIN') {
-                    USERS[userID] = { username : json.username };
-                    json.body = 'joined!';
-                    sendMessage(JSON.stringify(json));
-                } else if (json.type === 'MSN') {
-                    sendMessage(JSON.stringify(json));
-                }
-            }
-            // else if (message.type === 'binary') {
-            //     console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
-            //     connection.sendBytes(message.binaryData);
-            // }
-        });
-
-        // user disconnected
-        connection.on('close', connection => {
-            console.log((new Date()) + " Peer " + userID + " disconnected.");
-            const json = { type: 'EXIT', username : USERS[userID].username, body : 'Exited', date : getCurrentDate() };
-            delete CLIENTS[userID];
-            delete USERS[userID];
-            sendMessage(JSON.stringify(json));
-        });
+        socket.on('disconnect', () => {
+            console.log('user disconnected');
+            socket.broadcast.emit('message');
+        })
     });
 
     return server;

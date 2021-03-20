@@ -4,11 +4,11 @@ const jwt = require('jsonwebtoken');
 const Usuario = require('./../models/Usuario');
 const app = express();
 
-app.get('/', (req, res) => {
-    console.info( req.session);
-
-    res.json({ msn : 'Hola'});
-});
+// app.get('/', (req, res) => {
+//     console.info( req.session);
+//
+//     res.json({ msn : 'Hola'});
+// });
 
 app.get('/isAuthenticated', (req, res) => {
     let session = req.session;
@@ -17,7 +17,7 @@ app.get('/isAuthenticated', (req, res) => {
     return Usuario.findOne({ user: session.user.user }, (erro, usuarioDB) => {
         if (erro) return res.status(500).json({ ok: false });
         if (!usuarioDB) return res.status(403).json({ ok: false });
-        return res.json({ ok: true });
+        return res.json({ ok: true, user : usuarioDB.user, email: usuarioDB.email});
     });
 });
 

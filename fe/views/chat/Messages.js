@@ -1,9 +1,13 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 
-const Messages = ({ data = [] }) => {
+const Messages = ({ data = {} }) => {
+    const [messages, setMessages] = useState([]);
+    useEffect(() => {
+        setMessages([...messages, data]);
+    }, [data]);
 
     return <Fragment>
-        {data.map((row, idx) => {
+        {messages.map((row, idx) => {
             return <article className="media" key={idx}>
                 <figure className="media-left">
                     <p className="image is-64x64">

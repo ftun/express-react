@@ -1,58 +1,47 @@
 import React, { useState, useEffect, Fragment, useRef, useContext } from 'react';
 import { AuthContext } from '../../components/AuthContext';
 import Messages from './Messages';
-import { w3cwebsocket as W3CWebSocket } from "websocket";
+import io from 'socket.io-client';
 
 const Index = props => {
-    const [username, setUsername] = useState(new Date());
+    const [username, setUsername] = useState((new Date()).getTime());
     const [connect, setConnect] = React.useState(false);
     const [body, setBody] = React.useState('');
-    const [data, setData] = React.useState([]);
-    const ws = useRef(null);
+    const [data, setData] = React.useState({});
+    const socket = useRef(null);
 
     /* Context de la session */
     const AuthConsumer = useContext(AuthContext);
 
 	useEffect(() => {
-        ws.current = new W3CWebSocket('ws://localhost:9000');
-		ws.current.onerror = () => console.error('Connection Error');
-		// ws.current.onerror = () => setConnect('Connection Error');
-		ws.current.onopen = () => {
-            ws.current.send(JSON.stringify({
-                username : username,
-                body : '',
-                type: "JOIN"
-            }));
-        };
+
+        socket.current = io('http://localhost:9000');
+		socket.current.on('chat', msn => setData(msn));
 
         return () => {
-            ws.current.onclose = () => console.log('echo-protocol Client Closed');
-       };
+            socket.current.off('chat', msn => {
+                setData({
+                    username : username,
+                    body : '',
+                    type: "EXITED"
+                });
+            });
+		    socket.current.close()
+        };
 
-   }, []);
-
-    useEffect(() => {
-        let isMounted = true;
-        if (!ws.current) return;
-        ws.current.onmessage = e => {
-		    if (typeof e.data === 'string') {
-				let msnS = JSON.parse(e.data);
-				if (isMounted) setData([...data, msnS]);
-		    }
-		};
-
-        return () => isMounted = false;
-    });
+    }, []);
 
     const handelOnSubmit = e => {
         e.preventDefault();
-        if (body.trim() !== '') {
-            ws.current.send(JSON.stringify({
-            	username : username,
-              	body : body,
-              	type: "MSN"
-            }));
+        if (body.trim() !== '' && socket.current) {
+            let msn = {
+                username : username,
+                body : body,
+                type: "MSN"
+            };
+            socket.current.emit('chat', msn);
             setBody('');
+            setData(msn);
         }
     }
 

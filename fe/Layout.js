@@ -6,12 +6,15 @@ import Axios from '../helpers/axios';
 
 const Layout = props => {
     const [existSession, setExistSession] = useState(false);
+    let infoUser = {};
 
     useEffect(() => {
         const getInit = async () => {
             const res = await Axios({ url : '/api/isAuthenticated' });
-            if (!res.error && res.data.ok) return setExistSession(true);
-            setExistSession(false);
+            if (res.error || !res.data.ok) return setExistSession(false);
+            infoUser.user = res.data.user;
+            infoUser.email = res.data.email;
+            return setExistSession(true);
         }
 	    getInit();
 	});
@@ -24,7 +27,8 @@ const Layout = props => {
     return <Router>
             <AuthProvider value={{
                 existSession : existSession,
-                setExistSession : setExistSession
+                setExistSession : setExistSession,
+                infoUser
             }}>
             <nav className="navbar" role="navigation" aria-label="main navigation">
                 <div className="navbar-brand">
