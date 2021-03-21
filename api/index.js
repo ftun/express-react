@@ -14,6 +14,17 @@ const app = express();
 const port = process.env.PORT;
 const sendFile = path.join(__dirname, '../dist/index.html');
 
+const session = require('express-session')({
+    secret: process.env.SESSION_SECRET,
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 1, // 1 day
+        secure: false
+    },
+    resave: true,
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: process.env.URLDB })
+});
+
 mongoose.connect(process.env.URLDB, { useNewUrlParser: true, useUnifiedTopology: true });
 const conn = mongoose.connection;
 conn.on('connected',() => {
@@ -23,16 +34,7 @@ conn.on('error', err => {
     if (err) console.log('Store::Error => ', error);
 });
 
-app.use(require('express-session')({
-    secret: process.env.SESSION_SECRET,
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 1, // 1 day
-        secure: false
-    },
-    resave: true,
-    saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: process.env.URLDB })
-}));
+app.use(session);
 
 // app.use((req, res, next) => {
 //     req.session.cookie.existSession = req.session.user !== undefined;
@@ -70,7 +72,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Spinning the http server and the websocket server.
-const server = serverIO(app);
+const server = serverIO(app, session);
 server.listen(port, () => {
     console.log(`Env: ${process.env.NODE_ENV} App listening at http://localhost:${port}`)
 });

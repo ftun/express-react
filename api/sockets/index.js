@@ -1,6 +1,7 @@
 // const webSocketServer = require('websocket').server;
 const socketIO = require('socket.io');
 const http = require('http');
+const sharedsession = require("express-socket.io-session");
 
 // Generates unique ID for every new connection
 const getUniqueID = () => {
@@ -41,36 +42,27 @@ let editorContent = null;
 // User activity history.
 let userActivity = [];
 
-const MSN = [];
-
-
-const sendMessage = (json) => {
-  // We are sending the current data to all connected CLIENTS
-  Object.keys(CLIENTS).map((client) => {
-    CLIENTS[client].sendUTF(json);
-  });
-}
-
-const typesDef = {
-  USER_EVENT: "userevent",
-  CONTENT_CHANGE: "contentchange"
-}
-
 // este array va a ser nuestra base de datos
 // no es una base de datos de verdad, pero para el ejemplo nos sirve
 const messages = []
 
-exports.server = app => {
+exports.server = (app, session) => {
     // Spinning the http server and the websocket server.
     const server = http.createServer(app);
     const io = socketIO(server);
+    io.use(sharedsession(session));
+
     io.on('connection', socket => {
-        console.log('User connected');
+        // sessionUser = socket.handshake.session.user;
+        // console.log('User connected', socket.id);
+        let sessionUser = socket.handshake.session.user;
+        CLIENTS[socket.id] = sessionUser;
         // enviamos el mensaje al cliente que se acaba de conectar
-        socket.emit('chat', { username : 'server', body : 'Hello!', type: "JOIN" });
+        socket.emit('chat', { username : sessionUser.user, body : 'Hello!', type: "JOIN" });
         // socket.broadcast.emit('User connected');
         socket.on('chat', data => {
-            console.log('data => ', typeof data, data);
+            let currentUser = CLIENTS[socket.id];
+            data.username = currentUser.user;
             // guardamos el mensaje en nuestra "DB"
             messages.push(data);
             // enviamos el mensaje a todos los sockets clientes
