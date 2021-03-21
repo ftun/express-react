@@ -16,7 +16,6 @@ const Index = props => {
 	useEffect(() => {
         socket.current = io('http://localhost:9000');
 		socket.current.on('chat', msn => {
-            console.log('chat::on', msn);
             setData(msn)
         });
         return () => {
@@ -39,7 +38,6 @@ const Index = props => {
                 body : body,
                 type: "MSN"
             };
-            console.log('chat::emit', msn);
             socket.current.emit('chat', msn);
             setBody('');
             // setData(msn);

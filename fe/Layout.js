@@ -11,7 +11,7 @@ const Layout = props => {
     useEffect(() => {
         const getInit = async () => {
             const res = await Axios({ url : '/api/isAuthenticated' });
-            if (res.error || !res.data.ok) return setExistSession(false);
+            if (res.error) return setExistSession(false);
             infoUser.user = res.data.user;
             infoUser.email = res.data.email;
             return setExistSession(true);
