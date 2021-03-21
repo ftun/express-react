@@ -5,19 +5,20 @@ import io from 'socket.io-client';
 
 const Index = props => {
     const [username, setUsername] = useState((new Date()).getTime());
-    const [connect, setConnect] = React.useState(false);
-    const [body, setBody] = React.useState('');
-    const [data, setData] = React.useState({});
+    const [connect, setConnect] = useState(false);
+    const [body, setBody] = useState('');
+    const [data, setData] = useState({});
     const socket = useRef(null);
 
     /* Context de la session */
     const AuthConsumer = useContext(AuthContext);
 
 	useEffect(() => {
-
         socket.current = io('http://localhost:9000');
-		socket.current.on('chat', msn => setData(msn));
-
+		socket.current.on('chat', msn => {
+            console.log('chat::on', msn);
+            setData(msn)
+        });
         return () => {
             socket.current.off('chat', msn => {
                 setData({
@@ -28,7 +29,6 @@ const Index = props => {
             });
 		    socket.current.close()
         };
-
     }, []);
 
     const handelOnSubmit = e => {
@@ -39,42 +39,40 @@ const Index = props => {
                 body : body,
                 type: "MSN"
             };
+            console.log('chat::emit', msn);
             socket.current.emit('chat', msn);
             setBody('');
-            setData(msn);
+            // setData(msn);
         }
     }
 
-    return <Fragment>
-        <Messages data={data}/>
-        <article className="media">
-            <figure className="media-left">
-                <p className="image is-64x64">
-                    <img src="https://bulma.io/images/placeholders/128x128.png" />
-                </p>
-            </figure>
-            <div className="media-content">
-                <form onSubmit={handelOnSubmit}>
-                    <div className="field">
-                        <p className="control">
-                            <textarea
-                                className="textarea is-primary"
-                                placeholder="Add a message..."
-                                value={body}
-                                onChange={e => setBody(e.target.value)}
-                            >
-                            </textarea>
-                        </p>
-                    </div>
-                    <div className="field">
-                        <p className="control">
-                            <button className="button is-primary is-light" type="submit" disabled={!AuthConsumer.existSession}>Post message</button>
-                        </p>
-                    </div>
-                </form>
-            </div>
-        </article>
-    </Fragment>;
+    return <div className="columns">
+        <div className="column is-one-quarter">On Line</div>
+        <div className="column">
+            <Messages data={data}/>
+            <article className="media">
+                <div className="media-content">
+                    <form onSubmit={handelOnSubmit}>
+                        <div className="field is-grouped">
+                            <p className="control is-expanded">
+                                <input
+                                    className="input is-primary"
+                                    placeholder="Add a message..."
+                                    value={body}
+                                    onChange={e => setBody(e.target.value)}
+                                />
+                            </p>
+                            <p className="control">
+                                <button className="button is-primary is-light" type="submit" disabled={!AuthConsumer.existSession}>
+                                    <span className="icon"><i className="fas fa-paper-plane"></i></span>
+                                </button>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </article>
+        </div>
+    </div>;
 };
 
 export default Index;

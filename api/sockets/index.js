@@ -66,18 +66,23 @@ exports.server = app => {
     const io = socketIO(server);
     io.on('connection', socket => {
         console.log('User connected');
+        // enviamos el mensaje al cliente que se acaba de conectar
+        socket.emit('chat', { username : 'server', body : 'Hello!', type: "JOIN" });
+        // socket.broadcast.emit('User connected');
         socket.on('chat', data => {
             console.log('data => ', typeof data, data);
             // guardamos el mensaje en nuestra "DB"
             messages.push(data);
-            // enviamos el mensaje a todos los usuarios menos a quién los envió
-            socket.broadcast.emit('message', data);
-        })
+            // enviamos el mensaje a todos los sockets clientes
+            io.sockets.emit('chat', data);
+            // enviamos el mensaje a todos los sockets clientes menos a quién los envió
+            // socket.broadcast.emit("chat", data);
+        });
 
         socket.on('disconnect', () => {
             console.log('user disconnected');
-            socket.broadcast.emit('message');
-        })
+            // socket.broadcast.emit('message');
+        });
     });
 
     return server;
